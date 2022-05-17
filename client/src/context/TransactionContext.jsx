@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { ethers } from "ethers";
 
@@ -20,8 +20,9 @@ const getEthereumContract = () => {
 };
 
 export const TransactionProvider = ({ children }) => {
-  const [transactions, setTransactions]=useState([])
+  const [transactions, setTransactions] = useState([]);
   const [currentAccount, setCurrentAccount] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [formData, setFormData] = useState({
     addressTo: "",
     amount: "",
@@ -47,8 +48,9 @@ export const TransactionProvider = ({ children }) => {
         (transaction) => ({
           addressTo: transaction.receiver,
           addressFrom: transaction.sender,
-          timestamp: new Date(transaction.timestamp.toNumber() * 1000)
-            .toLocaleString(),
+          timestamp: new Date(
+            transaction.timestamp.toNumber() * 1000
+          ).toLocaleString(),
           message: transaction.message,
           keyword: transaction.keyword,
           amount: parseInt(transaction.amount._hex) / 10 ** 18,
@@ -57,6 +59,7 @@ export const TransactionProvider = ({ children }) => {
       console.log(structuredTransactions);
       setTransactions(structuredTransactions);
     } catch (error) {
+      setIsAuthenticated(false);
       throw new Error("No ethereum object");
     }
   };
@@ -68,6 +71,7 @@ export const TransactionProvider = ({ children }) => {
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
         getAllTransactions();
+        setIsAuthenticated(true);
       } else {
         console.log("No Accounts found");
       }
@@ -95,6 +99,7 @@ export const TransactionProvider = ({ children }) => {
       });
 
       setCurrentAccount(accounts[0]);
+
       window.location.reload();
     } catch (error) {
       console.log(error);
@@ -163,10 +168,13 @@ export const TransactionProvider = ({ children }) => {
         setFormData,
         handleChange,
         sendTransaction,
-        transactions,isLoading
+        transactions,
+        isLoading,
+        isAuthenticated,
       }}
     >
       {children}
     </TransactionContext.Provider>
   );
 };
+export const useStateContext = () => useContext(TransactionContext);
