@@ -58,6 +58,7 @@ export const TransactionProvider = ({ children }) => {
       );
       console.log(structuredTransactions);
       setTransactions(structuredTransactions);
+      setIsAuthenticated(true);
     } catch (error) {
       setIsAuthenticated(false);
       throw new Error("No ethereum object");
@@ -71,12 +72,12 @@ export const TransactionProvider = ({ children }) => {
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
         getAllTransactions();
-        setIsAuthenticated(true);
       } else {
         console.log("No Accounts found");
       }
     } catch (error) {
       throw new Error("No ethereum object");
+      setIsAuthenticated(false);
     }
   };
 
@@ -103,7 +104,7 @@ export const TransactionProvider = ({ children }) => {
       window.location.reload();
     } catch (error) {
       console.log(error);
-
+      setIsAuthenticated(false);
       throw new Error("No ethereum object");
     }
   };
